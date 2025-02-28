@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Toddler Typing Playground</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            background: #f0f8ff;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+            cursor: pointer;
+            touch-action: manipulation;
+        }
+        canvas {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="playground"></canvas>
+    
+    <script>
+        const canvas = document.getElementById('playground');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        const elements = [];
+        
+        function getRandomColor() {
+            return `hsl(${Math.random() * 360}, 70%, 60%)`;
+        }
+        
+        function getRandomPosition() {
+            return {
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                size: Math.random() * 70 + 35
+            };
+        }
+        
+        function addElement(type, x, y) {
+            const { size } = getRandomPosition();
+            const color = getRandomColor();
+            
+            if (type === "burst") {
+                elements.push({ x, y, size, color, type });
+            } else if (type === "letter") {
+                const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+                const randomChar = characters[Math.floor(Math.random() * characters.length)];
+                elements.push({ x, y, size, color, type, text: randomChar });
+            }
+        }
+        
+        function drawElements() {
+            elements.forEach((el, index) => {
+                ctx.fillStyle = el.color;
+                if (el.type === "burst") {
+                    ctx.beginPath();
+                    for (let i = 0; i < 8; i++) {
+                        const angle = (i / 8) * (2 * Math.PI);
+                        const dx = el.x + Math.cos(angle) * el.size;
+                        const dy = el.y + Math.sin(angle) * el.size;
+                        ctx.lineTo(dx, dy);
+                    }
+                    ctx.closePath();
+                    ctx.fill();
+                } else if (el.type === "letter") {
+                    ctx.font = `${el.size}px Arial`;
+                    ctx.textAlign = "center";
+                    ctx.fillText(el.text, el.x, el.y);
+                }
+                el.size -= 0.5;
+                if (el.size <= 0) {
+                    elements.splice(index, 1);
+                }
+            });
+        }
+        
+        window.addEventListener('keydown', () => {
+            addElement("burst", Math.random() * canvas.width, Math.random() * canvas.height);
+            addElement("letter", Math.random() * canvas.width, Math.random() * canvas.height);
+        });
+        
+        canvas.addEventListener('click', (e) => {
+            addElement("burst", e.clientX, e.clientY);
+            addElement("letter", e.clientX, e.clientY);
+        });
+        
+        canvas.addEventListener('touchstart', (e) => {
+            const touch = e.touches[0];
+            addElement("burst", touch.clientX, touch.clientY);
+            addElement("letter", touch.clientX, touch.clientY);
+        });
+        
+        function drawScene() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawElements();
+            requestAnimationFrame(drawScene);
+        }
+        
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+        
+        drawScene();
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
