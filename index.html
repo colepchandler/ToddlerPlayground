@@ -29,6 +29,29 @@
         canvas.height = window.innerHeight;
         const elements = [];
         
+        const donationInfo = {
+            text: "Support the creator on venmo: @venmoUsername",
+            fontSize: 16,
+            padding: 10,
+            color: "rgba(100, 100, 100, 0.8)"
+        };
+
+        function updateDonationTextPosition() {
+            donationInfo.fontSize = Math.max(14, canvas.width / 50);
+            ctx.font = `${donationInfo.fontSize}px Arial`;
+            const textWidth = ctx.measureText(donationInfo.text).width;
+            donationInfo.x = canvas.width - textWidth - donationInfo.padding;
+            donationInfo.y = canvas.height - donationInfo.padding;
+        }
+
+        function drawDonationText() {
+            ctx.fillStyle = donationInfo.color;
+            ctx.font = `${donationInfo.fontSize}px Arial`;
+            ctx.textAlign = "right";
+            ctx.textBaseline = "bottom";
+            ctx.fillText(donationInfo.text, donationInfo.x, donationInfo.y);
+        }
+        
         function getRandomColor() {
             return `hsl(${Math.random() * 360}, 70%, 60%)`;
         }
@@ -98,14 +121,17 @@
         function drawScene() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             drawElements();
+            drawDonationText();
             requestAnimationFrame(drawScene);
         }
         
         window.addEventListener('resize', () => {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
+            updateDonationTextPosition();
         });
         
+        updateDonationTextPosition();
         drawScene();
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
